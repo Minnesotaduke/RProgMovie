@@ -52,9 +52,27 @@ CMTOF %>%
 CMTOF %>%
   summarise(across(where(is.character), ~sum(.x == "", na.rm = TRUE)))
 
-> CMTFOR <- CMFTO %>%
+CMTFOR <- CMFTO %>%
   +     filter(revenue >= 50000, budget >= 10000 )
 
-save it
+#save it
 CMTFOR <- CMFTO %>%
       filter(revenue >= 50000, budget >= 10000 )
+
+# Check release_date column for type and convert to date if necessary
+is.character(Clean_movies$release_date)
+#TRUE
+#Properly Convert to Date then check with lubridate and inherits command
+#discover it must be in YMD as that's how it was inputted
+
+movies_clean$release_date <- ymd(movies_clean$release_date)
+
+# Write it as a a new CSV and remove unnecessary columns "Status (everything is released) and "Adult"
+ clean_movies2$adult <- NULL
+ clean_movies2$status <- NULL
+ summary(clean_movies2)
+ 
+ # Convert Revenue and budget to Exponential
+ clean_movies3 <- clean_movies2 %>%
+   mutate(log_revenue = log(revenue)) %>%
+   mutate(log_budget = log(budget))

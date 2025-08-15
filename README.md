@@ -4,3 +4,5 @@ a change log and Up to date of what progress I make
 7/28/2025
 - Repository created, R-studio linked - Git installed and synced
  - Finalized Plan to stay away from scraping.
+ 
+ 8/9/2025 Began feature engineering by adding all relevant date columns. took up 2 hours and 15 minutes

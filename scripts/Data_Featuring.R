@@ -112,3 +112,18 @@ Moviesdated <- moviesquarter %>%
   
   head(Moviesdated)
   
+# Begin the financial work too, start with making a "Estimated full cost of the movie. <20mil will be 6x, 20mil to 80 mil will be 3x, 100mil + will be 2x. 
+  
+MoviesCost <- Movies %>%
+  mutate(Est_totalcost = case_when(
+    budget <= 6000000 ~ 6.0*budget,
+    budget > 6000000 & budget <= 10000000 ~ 5.0*budget,
+    budget > 10000000 & budget <= 50000000 ~ 3.0 * budget,
+    budget > 50000000 & budget <= 100000000~ 2.75 * budget,
+    budget > 100000000 & budget <= 175000000 ~2.5 * budget,
+    budget >  175000000 ~ 2.0*budget
+    
+    
+  ))
+
+head(MoviesCost)

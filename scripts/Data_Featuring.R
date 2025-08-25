@@ -241,12 +241,15 @@ head(ADJ_MoviesCostLog)
 
 # Add Estimate studio take home, (For analysis purposes we will assume that every movie is 50% from the theater)
 
+ADJ_MoviesCostLog <- read.csv("data/MoviesPhase3complete.csv")
+
 ADJ_moviescoststudio <- ADJ_MoviesCostLog %>%
   mutate(ADJ_studio_revenue_est = case_when(
-    ADJ_revenue > 1000000000 ~ ADJ_revenue * 0.57,  # Mega hits get better deals
-    ADJ_revenue > 500000000 ~ ADJ_revenue * 0.535,   # Big hits
-    ADJ_revenue < 100000000 ~ ADJ_revenue * 0.48,   # Poor performers (Relative)
-    TRUE ~ ADJ_revenue * 0.50                   # Standard
+    ADJ_budget >= 200000000  ~ ADJ_revenue * 0.65, 
+    ADJ_budget >= 150000000 ~ ADJ_revenue * 0.62,
+    ADJ_budget >= 100000000  ~ ADJ_revenue * 0.60,   
+    ADJ_budget >= 75000000 ~ ADJ_revenue * 0.55,   
+    TRUE ~ ADJ_revenue * 0.50                   
   ))
 
 head(ADJ_moviescoststudio)
@@ -295,6 +298,7 @@ head(n=50, ROI_Check)
 
 movies_with_ROi$ROI <- as.numeric(movies_with_ROi$ROI)
 
+print ("Stroke my cactus")
 
 finale_movies <- movies_with_ROi %>%
   mutate(
@@ -319,11 +323,6 @@ head(finale_movies)
 
 
 
-
-finale_movies %>%
-  filter(title == "Whiplash")
-
-
 # Begin final feature engineering
 
 Moviesreal <- read.csv("data/finale_movies.csv")
@@ -343,3 +342,4 @@ MoviesFactor <- MoviesGenre %>%
 head(MoviesFactor)
 
 write_csv(MoviesFactor, "data/MoviesPhase3Complete.csv")
+

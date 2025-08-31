@@ -343,3 +343,5 @@ head(MoviesFactor)
 
 write_csv(MoviesFactor, "data/MoviesPhase3Complete.csv")
 
+MoviesReals$log_vote_count <- log(MoviesReals$vote_count + 1)
+

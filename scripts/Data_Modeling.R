@@ -303,4 +303,105 @@ ggplot(Yearly_ROI, aes(x = release_year, y = Avg_ROI)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+# Begin Making colorized fancy Barplots!
+
+ggplot(MoviesReals, aes(x = Major_Genre, fill = Major_Genre)) +
+  geom_bar() +
+  labs(title = "Amount of Movies per predominant Genre",
+       x = "Major Genre",
+       y = "Movie Count") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+#Realize I have to fix the ordering of my profit status
+level_order <- c(
+  "Box office Bomb", "Major Flop", "Minor loss", "Micro loss", "Broke Even",
+  "Micro success", "Success", "Solid Performer", "Massive Success", "Hit", "Massive Box office Hit"
+)
+
+new_labs <- c(  `Box office Bomb` = "Bomb (ROI < -75%)",
+                `Major Flop` = "Major Flop (-75% to -50%)",
+                `Minor loss` = "Minor Loss (-50% to -25%)",
+                `Micro loss` = "Micro Loss (-25% to -10%)",
+                `Broke Even` = "Broke Even (ROI = 0%)",
+                `Micro success` = "Micro Success (-10% to 25%)",
+                `Success` = "Success (25% to 50%)",
+                `Solid Performer` = "Solid Performer (50% to 100%)",
+                `Massive Success` = "Massive Success (100% to 150%)",
+                `Hit` = "Hit (150% to 200%)",
+                `Massive Box office Hit` = "Massive Hit (ROI > 200%)"
+)
+
+MoviesProfOrdered <- MoviesReals %>%
+  # Convert 'profit_status' to a factor (again) with the specified order for chart readability
+  mutate(profit_status = factor(profit_status, levels = level_order)) 
   
+ggplot(MoviesProfOrdered, aes(x = profit_status, fill = profit_status)) +
+  geom_bar() +
+  labs(title = "Amount of Movies per box office performance status",
+       x = "Profit Status",
+       y = "Movie Count") +
+  scale_x_discrete(labels = new_labs)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+
+level_order_DOW <- c(
+   "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
+  "Saturday" )
+
+MoviesDayOrdered <- MoviesReals %>%
+  mutate(name_of_DOW = factor(name_of_DOW, levels = level_order_DOW))
+
+ggplot(MoviesDayOrdered, aes(x = name_of_DOW, fill = name_of_DOW)) +
+  geom_bar() +
+  labs(title = "Amount of Movies per day of the week released",
+       x = "Day of the week",
+       y = "Movie Count") +
+  scale_x_discrete(labels = new_labs)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+#Do it again but for season
+
+level_order_SEA <- c(
+  "Spring", "Summer", "Fall", "Winter" )
+
+MoviesSeaORD <- MoviesReals %>%
+  mutate(release_season = factor(release_season, levels = level_order_SEA))
+
+ggplot(MoviesSeaORD, aes(x = release_season, fill = release_season)) +
+  geom_bar() +
+  labs(title = "Amount of Movies per season released",
+       x = "Season",
+       y = "Movie Count") +
+  scale_x_discrete(labels = new_labs)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+#Do it again but for release quarter
+
+level_order_quar <- c(
+  "Q1", "Q2", "Q3", "Q4" )
+
+MoviesquarORD <- MoviesReals %>%
+  mutate(release_quarter = factor(release_quarter, levels = level_order_quar))
+
+ggplot(MoviesquarORD, aes(x = release_quarter, fill = release_quarter)) +
+  geom_bar() +
+  labs(title = "Amount of Movies per fiscal quarter released",
+       x = "Fiscal Quarter",
+       y = "Movie Count") +
+  scale_x_discrete(labels = new_labs)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+#Do it again for release month
+
+level_order_month <- c(
+  "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" )
+
+MoviesMonthORD <- MoviesReals %>%
+  mutate(release_month = factor(release_month, levels = level_order_month))
+
+ggplot(MoviesMonthORD, aes(x = release_month, fill = release_month)) +
+  geom_bar() +
+  labs(title = "Amount of Movies per month released",
+       x = "Month",
+       y = "Movie Count") +
+  scale_x_discrete(labels = new_labs)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 

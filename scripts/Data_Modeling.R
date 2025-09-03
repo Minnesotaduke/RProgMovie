@@ -186,3 +186,95 @@ ggplot(MoviesReals, aes(x=Major_Genre,y=ADJ_revenue)) +
   labs(title = "Boxplot of Genre Vs Worldwide Revenue", x = "Major Genre", y = "Worldwide Revenue (Adj for inflation)") +
   theme_minimal()+
 theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Do all the same plots I just did but now with studio revenue, then with ROI
+
+#realize I need to split up Stu Pro or loss
+
+head(MoviesReals)
+
+MoviesReals$Profit <- ifelse(MoviesReals$ADJ_Stu_PROF_or_LOSS > 0, MoviesReals$ADJ_Stu_PROF_or_LOSS, NA)
+MoviesReals$Loss <- ifelse(MoviesReals$ADJ_Stu_PROF_or_LOSS < 0, MoviesReals$ADJ_Stu_PROF_or_LOSS, NA)
+
+cor(MoviesReals[, c("vote_count", "ADJ_budget", "ADJ_revenue", "ROI", "ADJ_studio_revenue_est", "runtime", "vote_average", "ADJ_Stu_PROF_or_LOSS", "Profit", "Loss" )], use = "complete.obs")
+
+sum(MoviesReals$Profit == 0, na.rm = TRUE)
+sum(MoviesReals$Loss == 0, na.rm = TRUE)
+
+#split up profit
+profitable_data <- MoviesReals[MoviesReals$ADJ_Stu_PROF_or_LOSS > 0, ]
+cor(profitable_data[, c("ADJ_budget", "ADJ_revenue", "Profit")], use = "complete.obs")
+
+#Split up loss
+loss_data <- MoviesReals[MoviesReals$ADJ_Stu_PROF_or_LOSS < 0, ]
+cor(loss_data[, c("ADJ_budget", "ADJ_revenue", "Loss")], use = "complete.obs")
+
+#ADJ_budget ADJ_revenue    Profit
+#ADJ_budget   1.0000000   0.7131226 0.4699299
+#ADJ_revenue  0.7131226   1.0000000 0.9371665
+#Profit       0.4699299   0.9371665 1.0000000
+
+#ADJ_budget ADJ_revenue        Loss
+#ADJ_budget   1.0000000  0.75976720 -0.66599074
+#ADJ_revenue  0.7597672  1.00000000 -0.09179718
+#Loss        -0.6659907 -0.09179718  1.00000000
+
+cor(profitable_data[, c("ADJ_budget", "ADJ_revenue", "Profit", "runtime", "vote_average", "vote_count", "ROI")], use = "complete.obs")
+
+             # ADJ_budget  ADJ_revenue     Profit     runtime vote_average  vote_count          ROI
+#ADJ_budget    1.00000000  0.713122561 0.46992987  0.37861785   0.07792573  0.62360291 -0.074959658
+#ADJ_revenue   0.71312256  1.000000000 0.93716651  0.39291970   0.21675337  0.63153904 -0.008715267
+#Profit        0.46992987  0.937166506 1.00000000  0.31841533   0.23316162  0.52297816  0.037139848
+#runtime       0.37861785  0.392919704 0.31841533  1.00000000   0.37947103  0.29588266 -0.068732094
+#vote_average  0.07792573  0.216753374 0.23316162  0.37947103   1.00000000  0.39136739 -0.033822903
+#vote_count    0.62360291  0.631539038 0.52297816  0.29588266   0.39136739  1.00000000 -0.028276512
+#ROI          -0.07495966 -0.008715267 0.03713985 -0.06873209  -0.03382290 -0.02827651  1.000000000
+
+cor(loss_data[, c("ADJ_budget", "ADJ_revenue", "Loss", "runtime", "vote_average", "vote_count", "ROI")], use = "complete.obs")
+
+colnames(profitable_data)
+
+#From this we can conclude that higher budgets = higher losses or the higher they stand the bigger they fall. Similarly the rebound is only 0.47 meaning that a high budget is often quite the risk
+
+ggplot(loss_data, aes(x = ADJ_budget, y = Loss)) +
+  geom_point(alpha = 0.6, color = "skyblue") +
+  geom_smooth(method = "lm", color = "darkred") +
+  scale_x_continuous(labels = function(x) dollar(x/1e6, suffix = "M")) +
+  scale_y_continuous(labels = function(x) dollar(x/1e6, suffix = "M")) +
+  labs(title = "Budget compared to movie loss For failing Movies (Adjusted for inflation)",
+       subtitle = "-0.67 r value or correlation; Movies that cost more usually fail much harder then low budget flops",
+       x = "Production Budget", y = "Studio Loss") +
+  theme_minimal()
+
+ggplot(profitable_data, aes(x = ADJ_budget, y = Profit)) +
+  geom_point(alpha = 0.6, color = "skyblue") +
+  geom_smooth(method = "lm", color = "darkred") +
+  scale_x_continuous(labels = function(x) dollar(x/1e6, suffix = "M")) +
+  scale_y_continuous(labels = function(x) dollar(x/1e6, suffix = "M")) +
+  labs(title = "Budget compared to movie profit For succesful Movies (Adjusted for inflation)",
+       subtitle = "0.47 r value or correlation; Movies that cost more are only moderately correlated to greater success.",
+       x = "Production Budget", y = "Studio profit") +
+  theme_minimal()
+
+
+#Begin yearly analysis line plots, the second to last before colorized bar plots / boxplots
+
+Yearly_budget <- MoviesReals %>%
+  group_by(release_year) %>%
+  summarise(avg_budget = mean(ADJ_budget, na.rm = TRUE))
+
+ggplot(Yearly_budget, aes(x = release_year, y = avg_budget)) +
+  geom_line() + 
+  geom_smooth() +
+  scale_y_continuous(breaks = seq(5e6, 1e9, 5e6),
+                     labels = function(x) dollar(x/1e6, suffix = "M")) +
+  scale_x_continuous(
+    breaks = seq(1915, 2025, 5),
+    labels = seq(1915, 2025, 5)
+  ) +
+  labs(title = "Yearly Budget Inflation",
+       subtitle = "A look at the increase in production budget over time",
+       x = "Release Year",
+       y = "Average Budget") +
+  theme_minimal() +
+theme(axis.text.x = element_text(angle = 45, hjust = 1))

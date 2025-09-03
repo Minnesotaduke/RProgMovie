@@ -8,6 +8,7 @@ library(jsonlite)
 library(rsample)
 library(naniar)
 library(readr)
+library(scales)
 
 # Since we want to make a "box office predictor" we're looking to build a few models that can see if a movies ROI will be high given predcitors
 # # 8/29/2025 Create some early graphs to visually inspect data before modeling
@@ -16,7 +17,6 @@ summary(Movies)
 str(Movies)
 colnames(Movies)
 
-library(scales)
 
 # Histogram For Revenue
   
@@ -278,3 +278,29 @@ ggplot(Yearly_budget, aes(x = release_year, y = avg_budget)) +
        y = "Average Budget") +
   theme_minimal() +
 theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Once more but now for yearly 
+
+Yearly_ROI <- MoviesReals %>%
+  group_by(release_year) %>%
+  summarise(Avg_ROI = mean(ROI, na.rm = TRUE))
+  
+ggplot(Yearly_ROI, aes(x = release_year, y = Avg_ROI)) +
+  geom_line() + 
+  geom_smooth() +
+  scale_y_continuous(breaks = c(-1.0, 0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0),
+                     labels = c("-1.0", "0", "1.0", "2.0", "3.0", "4.0", "5.0", "6.0", "7.0"),
+                     limits = c(-1, 8))+
+  scale_x_continuous(
+    breaks = seq(1920, 2025, 5),
+    labels = seq(1920, 2025, 5),
+  ) +
+  geom_hline(yintercept = 0, color = "firebrick") +
+  labs(title = "Yearly ROI Overtime",
+       subtitle = "A look at the increase in Average ROI for a film; Red = Break even (0 ROI) Line",
+       x = "Release Year",
+       y = "Average ROI") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+  

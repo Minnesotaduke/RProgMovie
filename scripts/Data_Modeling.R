@@ -173,8 +173,8 @@ cor(MoviesReals$log_vote_count, MoviesReals$ADj_log_budget, use = "complete.obs"
 
 # Revenue VS Major_Genre
 
-ggplot(MoviesReals, aes(x=Major_Genre,y=ADJ_revenue)) +
-  geom_boxplot(fill = "firebrick") +
+ggplot(MoviesReals, aes(x=Major_Genre,y=ADJ_revenue, fill= Major_Genre)) +
+  geom_boxplot() +
   scale_y_continuous( trans = "log10",
                      breaks = c(2.5e4, 5e4, 1e5, 2e5, 5e5, 1e6, 2e6, 5e6, 1e7, 2e7, 3.5e7, 5e7, 7.5e7, 1e8, 1.5e8, 2e8, 2.5e8, 5e8, 1e9, 2e9, 3e9, 4e9),
                        labels = function(y) {case_when(
@@ -281,6 +281,9 @@ theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Once more but now for yearly 
 
+
+
+
 Yearly_ROI <- MoviesReals %>%
   group_by(release_year) %>%
   summarise(Avg_ROI = mean(ROI, na.rm = TRUE))
@@ -303,7 +306,15 @@ ggplot(Yearly_ROI, aes(x = release_year, y = Avg_ROI)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+
+
+
+
 # Begin Making colorized fancy Barplots!
+
+
+
+
 
 ggplot(MoviesReals, aes(x = Major_Genre, fill = Major_Genre)) +
   geom_bar() +
@@ -311,6 +322,12 @@ ggplot(MoviesReals, aes(x = Major_Genre, fill = Major_Genre)) +
        x = "Major Genre",
        y = "Movie Count") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+
+
+
+
+
 #Realize I have to fix the ordering of my profit status
 level_order <- c(
   "Box office Bomb", "Major Flop", "Minor loss", "Micro loss", "Broke Even",
@@ -342,7 +359,7 @@ ggplot(MoviesProfOrdered, aes(x = profit_status, fill = profit_status)) +
   scale_x_discrete(labels = new_labs)+
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 
-
+# Do it again but for day fo the week
 level_order_DOW <- c(
    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
   "Saturday" )
@@ -405,3 +422,192 @@ ggplot(MoviesMonthORD, aes(x = release_month, fill = release_month)) +
        y = "Movie Count") +
   scale_x_discrete(labels = new_labs)+
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+#Finish the boxplot with the other categorical values starting with profit status
+
+ggplot(MoviesProfOrdered, aes(x=profit_status,y=ADJ_budget, fill = profit_status)) +
+  geom_boxplot() +
+  scale_y_continuous( trans = "log10",
+                      breaks = c(2.5e4, 5e4, 1e5, 2e5, 5e5, 1e6, 2e6, 5e6, 1e7, 2e7, 3.5e7, 5e7, 7.5e7, 1e8, 1.5e8, 2e8, 2.5e8, 3.5e8, 5e8),
+                      labels = function(y) {case_when(
+                        y >= 1e9 ~ paste0(y/1e9, "B"),
+                        y >= 1e6 ~ paste0(y/1e6, "M"),
+                        y >= 1e3 ~ paste0(y/1e3, "K")
+                      )
+                      })+
+  labs(title = "Boxplot of Profit status Vs production budget: which movies have the best ROI", x = "Profit status depending on ROI", y = "Production budget") +
+  theme_minimal()+
+  scale_x_discrete(labels = new_labs)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+# Budget vs Genre too
+
+
+
+
+
+
+
+ggplot(MoviesReals, aes(x=Major_Genre,y=ADJ_budget, fill = Major_Genre)) +
+  geom_boxplot() +
+  scale_y_continuous( trans = "log10",
+                      breaks = c(2.5e4, 5e4, 1e5, 2e5, 5e5, 1e6, 2e6, 5e6, 1e7, 2e7, 3.5e7, 5e7, 7.5e7, 1e8, 1.5e8, 2e8, 2.5e8, 3.5e8, 5e8),
+                      labels = function(y) {case_when(
+                        y >= 1e9 ~ paste0(y/1e9, "B"),
+                        y >= 1e6 ~ paste0(y/1e6, "M"),
+                        y >= 1e3 ~ paste0(y/1e3, "K")
+                      )
+                      })+
+  labs(title = "Boxplot of Genre Compared to Adjusted Production Budget", x = "Genre", y = "Production Budget Adjusted for inflation") +
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+
+
+#  Month vs ADj Rev
+ggplot(MoviesMonthORD, aes(x=release_month,y=ADJ_revenue, fill = release_month)) +
+  geom_boxplot() +
+  scale_y_continuous( trans = "log10",
+                      breaks = c(2.5e4, 5e4, 1e5, 2e5, 5e5, 1e6, 2e6, 5e6, 1e7, 2e7, 3.5e7, 5e7, 7.5e7, 1e8, 1.5e8, 2e8, 2.5e8, 5e8, 1e9, 2e9, 3e9, 4e9),
+                      labels = function(y) {case_when(
+                        y >= 1e9 ~ paste0(y/1e9, "B"),
+                        y >= 1e6 ~ paste0(y/1e6, "M"),
+                        y >= 1e3 ~ paste0(y/1e3, "K")
+                      )
+                      })+
+  labs(title = "Boxplot of release month compared to adjusted revenue", x = "release month", y = "Worldwide Revenue adjusted for inflation") +
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Month V ADJ Budget
+ggplot(MoviesMonthORD, aes(x=release_month,y=ADJ_budget, fill = release_month)) +
+geom_boxplot() +
+  scale_y_continuous( trans = "log10",
+                      breaks = c(2.5e4, 5e4, 1e5, 2e5, 5e5, 1e6, 2e6, 5e6, 1e7, 2e7, 3.5e7, 5e7, 7.5e7, 1e8, 1.5e8, 2e8, 2.5e8, 3.5e8, 5e8),
+                      labels = function(y) {case_when(
+                        y >= 1e9 ~ paste0(y/1e9, "B"),
+                        y >= 1e6 ~ paste0(y/1e6, "M"),
+                        y >= 1e3 ~ paste0(y/1e3, "K")
+                      )
+                      })+
+  labs(title = "Boxplot of release month Compared to Adjusted Production Budget", x = "release month", y = "Production Budget Adjusted for inflation") +
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+## Now for Day of the week
+# Day of the week vs Adjusted REV
+
+
+
+
+
+ggplot(MoviesDayOrdered, aes(x=name_of_DOW,y=ADJ_revenue, fill = name_of_DOW)) +
+  geom_boxplot() +
+  scale_y_continuous( trans = "log10",
+                      breaks = c(2.5e4, 5e4, 1e5, 2e5, 5e5, 1e6, 2e6, 5e6, 1e7, 2e7, 3.5e7, 5e7, 7.5e7, 1e8, 1.5e8, 2e8, 2.5e8, 5e8, 1e9, 2e9, 3e9, 4e9),
+                      labels = function(y) {case_when(
+                        y >= 1e9 ~ paste0(y/1e9, "B"),
+                        y >= 1e6 ~ paste0(y/1e6, "M"),
+                        y >= 1e3 ~ paste0(y/1e3, "K")
+                      )
+                      })+
+  labs(title = "Boxplot of release day of the week compared to adjusted revenue", x = "release day of the week", y = "Worldwide Revenue Adjusted for inflation")+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+#DOW V Adjusted Budget
+
+
+ggplot(MoviesDayOrdered, aes(x=name_of_DOW,y=ADJ_budget, fill = name_of_DOW)) +
+  geom_boxplot() +
+  scale_y_continuous( trans = "log10",
+                      breaks = c(2.5e4, 5e4, 1e5, 2e5, 5e5, 1e6, 2e6, 5e6, 1e7, 2e7, 3.5e7, 5e7, 7.5e7, 1e8, 1.5e8, 2e8, 2.5e8, 5e8),
+                      labels = function(y) {case_when(
+                        y >= 1e9 ~ paste0(y/1e9, "B"),
+                        y >= 1e6 ~ paste0(y/1e6, "M"),
+                        y >= 1e3 ~ paste0(y/1e3, "K")
+                      )
+                      })+
+  labs(title = "Boxplot of release day of the week compared to adjusted production budget", x = "release day of the week", y = "production budget adjusted for inflation")+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+# Now for quarer v revenue
+
+ggplot(MoviesquarORD, aes(x=release_quarter,y=ADJ_revenue, fill = release_quarter)) +
+  geom_boxplot() +
+  scale_y_continuous( trans = "log10",
+                      breaks = c(2.5e4, 5e4, 1e5, 2e5, 5e5, 1e6, 2e6, 5e6, 1e7, 2e7, 3.5e7, 5e7, 7.5e7, 1e8, 1.5e8, 2e8, 2.5e8, 5e8, 1e9, 2e9, 3e9, 4e9),
+                      labels = function(y) {case_when(
+                        y >= 1e9 ~ paste0(y/1e9, "B"),
+                        y >= 1e6 ~ paste0(y/1e6, "M"),
+                        y >= 1e3 ~ paste0(y/1e3, "K")
+                      )
+                      })+
+  labs(title = "Boxplot of release fiscal quarter compared to adjusted worldwide revenue", x = "Fiscal Quarter", y = "worldwide revenue adjusted for inflation")+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+#Quarter V Budget
+
+ggplot(MoviesquarORD, aes(x=release_quarter,y=ADJ_budget, fill = release_quarter)) +
+  geom_boxplot() +
+  scale_y_continuous( trans = "log10",
+                      breaks = c(2.5e4, 5e4, 1e5, 2e5, 5e5, 1e6, 2e6, 5e6, 1e7, 2e7, 3.5e7, 5e7, 7.5e7, 1e8, 1.5e8, 2e8, 2.5e8, 5e8),
+                      labels = function(y) {case_when(
+                        y >= 1e9 ~ paste0(y/1e9, "B"),
+                        y >= 1e6 ~ paste0(y/1e6, "M"),
+                        y >= 1e3 ~ paste0(y/1e3, "K")
+                      )
+                      })+
+  labs(title = "Boxplot of release fiscal quarter compared to adjusted production budget", x = "Fiscal Quarter", y = "production budget adjusted for inflation")+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#Season V Budget
+
+
+
+
+
+
+ggplot(MoviesSeaORD, aes(x=release_season,y=ADJ_budget, fill = release_season)) +
+  geom_boxplot() +
+  scale_y_continuous( trans = "log10",
+                      breaks = c(2.5e4, 5e4, 1e5, 2e5, 5e5, 1e6, 2e6, 5e6, 1e7, 2e7, 3.5e7, 5e7, 7.5e7, 1e8, 1.5e8, 2e8, 2.5e8, 5e8),
+                      labels = function(y) {case_when(
+                        y >= 1e9 ~ paste0(y/1e9, "B"),
+                        y >= 1e6 ~ paste0(y/1e6, "M"),
+                        y >= 1e3 ~ paste0(y/1e3, "K")
+                      )
+                      })+
+  labs(title = "Boxplot of release fiscal quarter compared to adjusted production budget", x = "Release Season", y = "production budget adjusted for inflation")+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+
+
+# Season V rev
+
+ggplot(MoviesquarORD, aes(x=release_season, y=ADJ_revenue, fill = release_season)) +
+  geom_boxplot() +
+  scale_y_continuous( trans = "log10",
+                      breaks = c(2.5e4, 5e4, 1e5, 2e5, 5e5, 1e6, 2e6, 5e6, 1e7, 2e7, 3.5e7, 5e7, 7.5e7, 1e8, 1.5e8, 2e8, 2.5e8, 5e8, 1e9, 2e9, 3e9, 4e9),
+                      labels = function(y) {case_when(
+                        y >= 1e9 ~ paste0(y/1e9, "B"),
+                        y >= 1e6 ~ paste0(y/1e6, "M"),
+                        y >= 1e3 ~ paste0(y/1e3, "K")
+                      )
+                      })+
+  labs(title = "Boxplot of release fiscal quarter compared to adjusted worldwide revenue", x = "Release Season", y = "worldwide revenue adjusted for inflation")+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+

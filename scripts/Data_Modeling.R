@@ -235,3 +235,6 @@ summary(V4Model)
 plot(V4Model)
 
 saveRDS(V4Model, "PredictorModels/ModelV4/ModelV4")
+
+V4ModSumm <- tidy(V4Model)
+write.csv(V4ModSumm, "PredictorModels/ModelV4/ModelV4SUMMARY")

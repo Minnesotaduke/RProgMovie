@@ -9,6 +9,7 @@ library(rsample)
 library(naniar)
 library(readr)
 library(scales)
+library(broom)
 
 #Looking at our data graphs it's evident what may be relevant for future analysis, we're going to keep most categorical variables, the boolean, and all other continuous
 #variables while dropping 
@@ -153,3 +154,84 @@ write.csv(TrainData, "PredictorModels/ModelV1/TrainingData")
 write.csv(TestData, "PredictorModels/ModelV1/TestingData")
 
 saveRDS(V1Model, "PredictorModels/ModelV1/V1Model")
+
+#For modle 1.2 Add first secondary predictor
+
+V1.2Model <- lm(ADJ_log_revenue ~ ADJ_log_budget + I(ADJ_log_budget^2), data = TrainData)
+
+
+summary(V1.2Model)
+plot(V1.2Model)
+
+
+#load broom library and save it to a dataframe for ease of use later
+library(broom)
+
+glance(V1.2Model)
+
+V1.2ModelSumm <- tidy(V1.2Model)
+
+#Residuals:
+#  Min      1Q  Median      3Q     Max 
+#-7.8029 -0.6998  0.1976  0.8865  5.1765 
+
+#Coefficients:
+#                    Estimate   Std. Error t value  Pr(>|t|)    
+#(Intercept)         26.911848   1.737262  15.491   <2e-16 ***
+#  ADJ_log_budget    -2.083891 0.210528  -9.898   <2e-16 ***
+#  I(ADJ_log_budget^2)0.089692 0.006364  14.095   <2e-16 ***
+  ---
+#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+#Residual standard error: 1.462 on 5558 degrees of freedom
+#Multiple R-squared:  0.4024,	Adjusted R-squared:  0.4021 
+#F-statistic:  1871 on 2 and 5558 DF,  p-value: < 2.2e-16
+  
+  #Now save the models and comment under Movie Analysis
+
+  saveRDS(V1.2Model, "PredictorModels/ModelV1/V1.2Model")
+
+#Make a new Model, Add Major_Genre
+V2Model <- lm(ADJ_log_revenue ~ ADJ_log_budget + I(ADJ_log_budget^2) + Major_Genre, data = TrainData)
+
+glimpse(V2Model)
+summary(V2Model)
+plot(V2Model)
+
+saveRDS(V2Model, "PredictorModels/ModelV2/V2Model")
+
+#Make another model and keep Vote_average to see if it's a good predictor or if its data leakage
+V3Model <- lm(ADJ_log_revenue ~ ADJ_log_budget + I(ADJ_log_budget^2) + Major_Genre + release_month, data = TrainData)
+
+summary(V3Model)
+plot(V3Model)
+
+saveRDS(V3Model, "PredictorModels/ModelV3/V3Model")
+
+#Try other interactions terms
+
+V3.1Model <- lm(ADJ_log_revenue ~ ADJ_log_budget * Major_Genre + I(ADJ_log_budget^2)  + release_month, data = TrainData)
+
+summary(V3.1Model)
+plot(V3.1Model)
+
+# Residual standard error: 1.443 on 5513 degrees of freedom
+# Multiple R-squared:  0.4221,	Adjusted R-squared:  0.4172 
+# F-statistic: 85.69 on 47 and 5513 DF,  p-value: < 2.2e-16
+
+
+#
+#
+
+Model3.1Summ <- tidy(V3.1Model)
+
+saveRDS(V3.1Model, "PredictorModels/ModelV3/V3.1Model")
+write.csv(Model3.1Summ, "PredictorModels/ModelV3/V3.1ModelSumm")
+
+TrainData <- read.csv("PredictorModels/ModelV1/TrainingData")
+V4Model <- lm(ADJ_log_revenue~ ADJ_log_budget * Major_Genre + I(ADJ_log_budget^2)  + release_month + runtime + name_of_DOW, data = TrainData)
+
+summary(V4Model)
+plot(V4Model)
+
+saveRDS(V4Model, "PredictorModels/ModelV4/ModelV4")

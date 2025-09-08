@@ -10,6 +10,9 @@ library(naniar)
 library(readr)
 library(scales)
 library(broom)
+library(randomForest)
+
+
 
 #Looking at our data graphs it's evident what may be relevant for future analysis, we're going to keep most categorical variables, the boolean, and all other continuous
 #variables while dropping 
@@ -238,3 +241,22 @@ saveRDS(V4Model, "PredictorModels/ModelV4/ModelV4")
 
 V4ModSumm <- tidy(V4Model)
 write.csv(V4ModSumm, "PredictorModels/ModelV4/ModelV4SUMMARY")
+
+
+# Begin Brancing by trying a new model:   in V5
+
+
+V5Model <- randomForest(ADJ_log_revenue
+                        ~ ADJ_log_budget * Major_Genre + I(ADJ_log_budget^2)  + release_month + runtime + name_of_DOW, data = TrainData,
+                        ntree = 500,
+                        ntry = 3,
+                        importance = TRUE)
+
+
+
+
+print(V5Model)
+plot(V5Model)
+
+importance(V5Model)
+varImpPlot(V5Model)

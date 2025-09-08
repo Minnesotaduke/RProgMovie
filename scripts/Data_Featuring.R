@@ -9,7 +9,10 @@ library(jsonlite)
 library(rsample)
 library(naniar)
 library(readr)
+library(stringr)
+library(fuzzyjoin)
 
+install.packages("fuzzyjoin")
 #Load Finalmovies.csv (this is really just the cleaned one)
 
 Moviestodate <- read.csv("data/finalmovies.csv")
@@ -345,3 +348,21 @@ write_csv(MoviesFactor, "data/MoviesPhase3Complete.csv")
 
 MoviesReals$log_vote_count <- log(MoviesReals$vote_count + 1)
 
+# 9/8/2025 - Find a Rotten tomatoes dataset and use it for studio_name, tomato meter status, directors and writers
+# 9/8/2025 - switch to IMDB Metascore instead
+
+ModelIMDB <- read.csv("data/ModelMovies")
+nrow(ModelIMDB)
+IMDBKey <- read.csv("data/IMDB TMDB Movie Metadata Big Dataset (1M).csv")
+nrow(IMDBKey)
+
+IMDBMini <- IMDBKey %>%
+  select(Certificate, id, title, Meta_score, Star1, Star2, Star3, Star4, Director, Cast_list)
+
+ModelToMini <- left_join(
+  ModelIMDB,
+  IMDBMini,
+  by = "id"
+)
+
+nrow(ModelToMini)

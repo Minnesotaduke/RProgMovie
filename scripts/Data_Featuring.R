@@ -366,3 +366,152 @@ ModelToMini <- left_join(
 )
 
 nrow(ModelToMini)
+
+# start cleaning up rows and upon further inspection quesiton quality of dataset. start over and load new dataset to go imdb id to tmbd and then imdb to metascore, director, stars, and certs.
+ToMerge <- read.csv("data/TMDB_all_movies.csv")
+ colnames(ToMerge)
+ 
+ Mergemini < - ToMerge %>%
+    select(id, imdb_id, title)
+ 
+ ModelFixedMini <- left_join(
+   ReModel,
+   MergeMini,
+   by = "id"
+ )
+ 
+ colnames(ModelFixedMini)
+ 
+ # Now prepare to merge the second dataset with proper meta_score, 
+ mergetoo <- read.csv("data/final_dataset.csv")
+ colnames(mergetoo)
+ 
+ # onyl select columns that are necessary
+ 
+ mergethree <- mergetoo %>%
+   select(id,production_companies,meta_score,title,stars, directors, MPA)
+ colnames(mergethree)
+ nrow(mergethree)
+
+ #finally merge in all above columns to 
+MergeFinalReal <- left_join(
+  ModelFixedMini,
+  mergethree,
+  by = c("imdb_id" ="id"))
+colnames(MergeFinalReal)
+nrow(MergeFinalReal)
+
+#Complete all checks and balances
+sum(is.na(MergeFinalReal$imdb_id) | is.na(MergeFinalReal$id))
+
+sum(is.na(MergeFinalReal$meta_score) | MergeFinalReal$meta_score == "")
+#939 missing
+sum(is.na(MergeFinalReal$stars) | MergeFinalReal$stars == "")
+#429 missng
+sum(is.na(MergeFinalReal$directors) | MergeFinalReal$directors == "")
+#429 missing
+sum(is.na(MergeFinalReal$production_companies) | MergeFinalReal$production_companies == "")
+#431 missing
+sum(is.na(MergeFinalReal$MPA) | MergeFinalReal$MPA == "")
+#429 missing
+
+TopMovscheck <- MergeFinalReal %>%
+  arrange((ADJ_revenue)) %>%
+  select(title.x, id, imdb_id, stars, directors, production_companies, MPA, ADJ_revenue, meta_score)
+
+head(n=50, TopMovscheck)
+
+unique(MergeFinalReal$MPA)
+#realize some tv ratings snuck into the dataset so filter for strange variables
+tv_ratings <- c("TV-MA", "TV-14", "TV-PG", "TV-G", "TV-Y", "TV-Y7", "M", "X", "GP", "PASSED", "Approved")
+TvraMovs <- MergeFinalReal %>%
+  filter(MPA %in% tv_ratings)
+print(TvraMovs)
+
+
+
+#Do a deeper check
+TvHi <- TvraMovs %>%
+  arrange(desc(ADJ_revenue)) %>%
+  select(title.x, ADJ_revenue, MPA, release_year, profit_status, profit_status)
+head(n = 50, TvHi)
+
+slice(TvHi, 250:300 )
+
+tv_ratings2 <- c("M", "Unrated", "Not Rated", "M/PG", "")
+TvraMovs2 <- MergeFinalReal %>%
+  filter(MPA %in% tv_ratings2)
+print(TvraMovs2)
+
+
+
+#Do a deeper check
+TvHi2 <- TvraMovs2 %>%
+  arrange(desc(ADJ_revenue)) %>%
+  select(title.x, MPA, release_year, profit_status, ADJ_revenue)
+head(n = 50, TvHi2)
+
+slice(TvHi2, 250:300 )
+
+colnames(MergeFinalReal)
+
+
+MPAFixed <- MergeFinalReal %>%
+  mutate(
+    cleanMPA = case_when(
+      is.na(MPA) | MPA == "" ~ "unknown",
+      
+      MPA %in% c("Approved", "Passed", "M", "GP", "M/PG", "TV-Y7") ~ "PG",
+      
+      MPA %in% c("TV-14") ~ "PG-13",
+      
+      MPA %in% c("TV-MA", "Unrated") ~ "R",
+      
+      MPA %in% c("X") ~ "NC-17",
+      
+      TRUE ~ MPA
+    ))
+
+unique(MPAFixed$cleanMPA)  
+  
+#startby cleaning directors name
+# Define a function to eliminate python vector format to work in R
+
+Columnlist_cleaner <- function(Text_String){
+  
+  clean_text <- gsub("[\\[\\]']", "", Text_String)
+  
+  
+  lower_Text <- tolower(clean_text)
+  
+  
+  temp_text <- strsplit(lower_Text, ", ")[[1]]
+   
+  
+  finaltext <- gsub("[[:punct:]]", "", temp_text)
+  
+  
+  finaltext <- gsub(" ", "", finaltext)
+  
+  
+  return(finaltext)
+  
+}
+
+test_string_1 <- "['Warner Bros.', 'MARVEL Entertainment']"
+
+result_1 <- Columnlist_cleaner(test_string_1)
+print(result_1)  
+
+colnames(MPAFixed)
+
+CleanstuffFIXED <- MPAFixed %>%
+  mutate(
+    directors_clean = lapply(directors, Columnlist_cleaner),
+    stars_clean = lapply(stars, Columnlist_cleaner),
+    prodcomp_clean = lapply(production_companies, Columnlist_cleaner)
+  )
+
+Cleanerstuff <- CleanstuffFIXED %>%
+   select(directors_clean, stars_clean, prodcomp_clean)
+head(n=50, Cleanerstuff)

@@ -1,5 +1,4 @@
-# 8/9/2025 realize that what i'm doing is feature engineerign when I begin adding columns so this is the new updated script as I proceed with that
-
+# 8/9/2025 --  Begin Feature Engineering
 # Load all Necessary Libraries
 library(tidyverse)
 library(dplyr)
@@ -12,8 +11,7 @@ library(readr)
 library(stringr)
 library(fuzzyjoin)
 
-install.packages("fuzzyjoin")
-#Load Finalmovies.csv (this is really just the cleaned one)
+#Load Finalmovies.csv (The clean movie dataset)
 
 Moviestodate <- read.csv("data/finalmovies.csv")
 
@@ -63,7 +61,7 @@ message("Day adding succesful")
 head(Moviesdays)
 
 
-#Now for the fun ones, release quarter and season
+#Add release quarter and Season.
 
 moviesquarter <- Moviesdays %>%
   mutate(
@@ -82,7 +80,7 @@ moviesquarter <- Moviesdays %>%
   head(moviesquarter)
   
   
-# and to finish the dates, add holiday release true false
+# And a holiday release boolean
   
 Moviesdated <- moviesquarter %>%
   mutate(holiday_release = case_when(
@@ -163,7 +161,7 @@ Moviesdated <- moviesquarter %>%
   
   head(n= 50, Moviesprofit)  
 
-#Realize here that I need to convert all money columns for inflation and recalculator studio revenue, and what not after adjusting for inflation
+#Begin loading Dataset to add all movies adjusted for inflation for linear modeling and graphing.
 range(Moviesprofit$release_year)
 
 # Download and load readxl
@@ -176,7 +174,7 @@ library(readxl)
 cpi_data <- read.csv("data/CPIData.csv", skip = 10)
 head(n=50, cpi_data)
 
-# fix the column names to be the first ro wbelow it.
+# fix the column names to be the first row below it.
 
 colnames(cpi_data) <- cpi_data[1,]
 
@@ -193,7 +191,7 @@ cpi_data_clean$Year <- as.numeric(cpi_data_clean$Year)
 sum(is.na(cpi_data_clean))
 cpi_final <- na.omit(cpi_data_clean)
 
-#Set a modern CPi for 2025 (320) and begin joining, (This was rearranged in retrospect to be able to do the work after this quicker. load the dataset before calcualtion once more.)
+#Set a modern CPi for 2025 (320) and begin joining, (This was rearranged in retrospect to be able to do the work after this quicker. load the dataset before calculation once more.)
 
 
 cpi_movies <- left_join(Moviesprofit, cpi_final, by=c("release_year" = "Year"))
@@ -242,7 +240,8 @@ ADJ_MoviesCostLog <- ADJ_MoviesCost %>%
 
 head(ADJ_MoviesCostLog)
 
-# Add Estimate studio take home, (For analysis purposes we will assume that every movie is 50% from the theater)
+# Add Estimate studio take home, (For analysis purposes we will assume that every movie is 50% from the theater, percentage take home is increasing
+# by budget assuming the scope of an "Event" film)
 
 ADJ_MoviesCostLog <- read.csv("data/MoviesPhase3complete.csv")
 
@@ -301,8 +300,6 @@ head(n=50, ROI_Check)
 
 movies_with_ROi$ROI <- as.numeric(movies_with_ROi$ROI)
 
-print ("Stroke my cactus")
-
 finale_movies <- movies_with_ROi %>%
   mutate(
     profit_status = case_when(
@@ -320,7 +317,7 @@ finale_movies <- movies_with_ROi %>%
     )
   )
 
-# Check your new 'profit_status' column
+# Check new 'profit_status' column
 head(finale_movies)
 
 
@@ -336,7 +333,7 @@ MoviesGenre <- Moviesreal %>%
   mutate(Major_Genre = as.factor(Major_Genre))
 head(MoviesGenre)
 
-# Ensure everything factor
+# Ensure everything is a factor for future one-hot encoding
 
 MoviesFactor <- MoviesGenre %>%
   mutate(profit_status <- as.factor(profit_status)) %>%
@@ -349,6 +346,7 @@ write_csv(MoviesFactor, "data/MoviesPhase3Complete.csv")
 MoviesReals$log_vote_count <- log(MoviesReals$vote_count + 1)
 
 # 9/8/2025 - Find a Rotten tomatoes dataset and use it for studio_name, tomato meter status, directors and writers
+# Coding note - Once ran through it was nigh impossible to properly merge given the scope of movie titles. investigation led to IMDB id and TMDB Id instead
 # 9/8/2025 - switch to IMDB Metascore instead
 
 ModelIMDB <- read.csv("data/ModelMovies")
@@ -422,7 +420,7 @@ TopMovscheck <- MergeFinalReal %>%
 head(n=50, TopMovscheck)
 
 unique(MergeFinalReal$MPA)
-#realize some tv ratings snuck into the dataset so filter for strange variables
+#Begin another clean to remove all excess TV Rating that were assigned to many foreign films
 tv_ratings <- c("TV-MA", "TV-14", "TV-PG", "TV-G", "TV-Y", "TV-Y7", "M", "X", "GP", "PASSED", "Approved")
 TvraMovs <- MergeFinalReal %>%
   filter(MPA %in% tv_ratings)
@@ -430,7 +428,7 @@ print(TvraMovs)
 
 
 
-#Do a deeper check
+#Visualize faulty movie ratings
 TvHi <- TvraMovs %>%
   arrange(desc(ADJ_revenue)) %>%
   select(title.x, ADJ_revenue, MPA, release_year, profit_status, profit_status)
@@ -444,8 +442,6 @@ TvraMovs2 <- MergeFinalReal %>%
 print(TvraMovs2)
 
 
-
-#Do a deeper check
 TvHi2 <- TvraMovs2 %>%
   arrange(desc(ADJ_revenue)) %>%
   select(title.x, MPA, release_year, profit_status, ADJ_revenue)
@@ -475,7 +471,8 @@ MPAFixed <- MergeFinalReal %>%
 unique(MPAFixed$cleanMPA)  
   
 #startby cleaning directors name
-# Define a function to eliminate python vector format to work in R
+# Define a function to eliminate python vector format to work in R as previous vector was for a dataset
+# intended to be used in python
 
 Columnlist_cleaner <- function(Text_String){
   
@@ -996,3 +993,5 @@ Movie_imp <- MovieStarsFIN %>%
                              meta_score))
     
 sum(is.na(Movie_imp$meta_score))
+
+# -- End Data Featuring

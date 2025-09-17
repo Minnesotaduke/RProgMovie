@@ -187,9 +187,7 @@ ggplot(MoviesReals, aes(x=Major_Genre,y=ADJ_revenue, fill= Major_Genre)) +
   theme_minimal()+
 theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-# Do all the same plots I just did but now with studio revenue, then with ROI
-
-#realize I need to split up Stu Pro or loss
+# Repeat above plots with studio revenue and ROI by splitting stu Loss and Profit
 
 head(MoviesReals)
 
@@ -310,7 +308,7 @@ ggplot(Yearly_ROI, aes(x = release_year, y = Avg_ROI)) +
 
 
 
-# Begin Making colorized fancy Barplots!
+# Begin Making colorized fancy Barplots for analysis
 
 
 
@@ -328,7 +326,7 @@ ggplot(MoviesReals, aes(x = Major_Genre, fill = Major_Genre)) +
 
 
 
-#Realize I have to fix the ordering of my profit status
+#Properly Order Success matrix for ease of viewing
 level_order <- c(
   "Box office Bomb", "Major Flop", "Minor loss", "Micro loss", "Broke Even",
   "Micro success", "Success", "Solid Performer", "Massive Success", "Hit", "Massive Box office Hit"
@@ -359,7 +357,7 @@ ggplot(MoviesProfOrdered, aes(x = profit_status, fill = profit_status)) +
   scale_x_discrete(labels = new_labs)+
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 
-# Do it again but for day fo the week
+# Repeat for DOW
 level_order_DOW <- c(
    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
   "Saturday" )
@@ -375,7 +373,7 @@ ggplot(MoviesDayOrdered, aes(x = name_of_DOW, fill = name_of_DOW)) +
   scale_x_discrete(labels = new_labs)+
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 
-#Do it again but for season
+#Repeat for Season
 
 level_order_SEA <- c(
   "Spring", "Summer", "Fall", "Winter" )
@@ -391,7 +389,7 @@ ggplot(MoviesSeaORD, aes(x = release_season, fill = release_season)) +
   scale_x_discrete(labels = new_labs)+
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 
-#Do it again but for release quarter
+#Repeat for Quarter
 
 level_order_quar <- c(
   "Q1", "Q2", "Q3", "Q4" )
@@ -407,7 +405,7 @@ ggplot(MoviesquarORD, aes(x = release_quarter, fill = release_quarter)) +
   scale_x_discrete(labels = new_labs)+
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 
-#Do it again for release month
+#Repear for Release month
 
 level_order_month <- c(
   "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" )
@@ -441,7 +439,7 @@ ggplot(MoviesProfOrdered, aes(x=profit_status,y=ADJ_budget, fill = profit_status
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
-# Budget vs Genre too
+# Budget vs Genre 
 
 
 
@@ -497,7 +495,7 @@ geom_boxplot() +
   theme_minimal()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-## Now for Day of the week
+## Repeat for DOW
 # Day of the week vs Adjusted REV
 
 
@@ -537,7 +535,7 @@ ggplot(MoviesDayOrdered, aes(x=name_of_DOW,y=ADJ_budget, fill = name_of_DOW)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
-# Now for quarer v revenue
+# Repeat for quarter v revenue
 
 ggplot(MoviesquarORD, aes(x=release_quarter,y=ADJ_revenue, fill = release_quarter)) +
   geom_boxplot() +
@@ -629,7 +627,7 @@ ggplot(MoviesSeaORD, aes(x=release_season, y=ADJ_studio_revenue_est, fill = rele
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 #Note regarding More categorical compared to studio revenue estimated. Seeing the first few graphs it's clear that there is little to no major difference between total revenue/ and adjsuted revnue
-# so for the sake of consistency and cleaner - consistent - date we are going to skip over pumping out more of those categorical data and will be switching making the modeling 
+# for  consistency and cleaner - consistent - data  skip over  more  categorical data and begin modeling.
 
 HolidayRels <- MoviesReals %>%
   group_by(holiday_release) %>%
@@ -644,13 +642,14 @@ ggplot(HolidayRels, aes(x = holiday_release, y = AVG_hol_rev,  fill = holiday_re
   theme_minimal()
   
 
-#Fix the little name error
+#Fix prior naming error with Adjusted Budget and Revenue
 
 MoviesReals <- MoviesReals %>%
   rename(
     ADJ_log_budget = ADj_log_budget,
     ADJ_log_revenue = ADj_log_revenue  # Add the second column here
   )
+
 #Show day of the month to prove it is a poor predictor
 ggplot(MoviesReals, aes(x = factor(day_of_month), y = log_revenue)) +
   geom_boxplot() +

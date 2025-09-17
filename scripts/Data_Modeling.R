@@ -1,4 +1,5 @@
 # 8/29/2025 - Begin Modeling and training a model 
+
 # Load all Necessary Libraries
 library(tidyverse)
 library(dplyr)
@@ -10,7 +11,7 @@ library(naniar)
 library(readr)
 library(scales)
 library(broom)
-#load library for seperate predictive models
+#load library for separate predictive models
 library(randomForest)
 library(xgboost)
 library(glmnet)
@@ -20,12 +21,12 @@ library(caret)
 
 
 #Looking at our data graphs it's evident what may be relevant for future analysis, we're going to keep most categorical variables, the boolean, and all other continuous
-#variables while dropping 
+#variables while dropping unneeded movie identifiers.
 
 MoviesReals <- MoviesReals %>%
   rename(
     ADJ_log_budget = ADj_log_budget,
-    ADJ_log_revenue = ADj_log_revenue  # Add the second column here
+    ADJ_log_revenue = ADj_log_revenue  
   )
 
 Model_data <- MoviesReals %>%
@@ -92,7 +93,7 @@ nrow(ModelData)
 #set seed so test can be easily reproduced
 message("Setting seed")
 set.seed(411)
-message("Seed set complete: 828")
+message("Seed set complete: 411")
 
 message("Splitting data...")
 splitdata <- initial_split(ModelData, prop = 0.8) #We're doing an 80/20 split to randomize the split data set to ensure there is not a strong sway in blockbusters
@@ -153,10 +154,10 @@ plot(V1Model)
 #F-statistic:  3421 on 1 and 5559 DF,  p-value: < 2.2e-16
 
 
-# Try again but with studio revenue
+# Repeat but with studio revenue
 V1.1Model <- lm(ADJ_log_studio_rev ~ ADJ_log_budget, data = TrainData)
 
-#Concluded no noticably differnces in results
+#Concluded no noticeably differences in results
 
 summary(V1.1Model)
 plot(V1.1Model)
@@ -166,7 +167,7 @@ write.csv(TestData, "PredictorModels/ModelV1/TestingData")
 
 saveRDS(V1Model, "PredictorModels/ModelV1/V1Model")
 
-#For modle 1.2 Add first secondary predictor
+#For model 1.2 Add first secondary predictor
 
 V1.2Model <- lm(ADJ_log_revenue ~ ADJ_log_budget + I(ADJ_log_budget^2), data = TrainData)
 
@@ -251,7 +252,7 @@ V4ModSumm <- tidy(V4Model)
 write.csv(V4ModSumm, "PredictorModels/ModelV4/ModelV4SUMMARY")
 
 
-# Begin Brancing by trying a new model:   in V5
+# Begin Branching by trying a new model:   in V5
 
 
 V5Model <- randomForest(ADJ_log_revenue
@@ -333,7 +334,7 @@ Model_data2 <- Movie_imp %>%
     
   )
 
-# Begin Splitting the data - this is a carbon copy of work done above to suite the new data
+# Begin Splitting the data - this is a carbon copy of work done above to suit the new data
 
 nrow(Model_data2)
 #set seed so test can be easily reproduced
@@ -418,7 +419,6 @@ plot(V7Model)
 importance(V7Model)
 varImpPlot(V7Model)
 
-#Try one last V8 Model using SVM to attempt to produce a test training model over 50%
 
 # Begin making predictions using either yarstick or caret
 

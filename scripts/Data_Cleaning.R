@@ -8,7 +8,7 @@ library(rsample)
 library(naniar)
 library(readr)
 
-#start the clean
+#Begin data cleaning
 
 movies %>%
   filter(revenue <= 0) %>%
@@ -22,13 +22,13 @@ movies %>%
   filter(budget <= 0 | revenue <= 0) %>%
   nrow()
 
-#Realize that my previous cleaning left movies that could possible have one or the other, fix it by making it say "and"
+#Recognize error in previous Data cleaning and add a "and" argument for  a more thorough approach
 cleaned_moviestwo <- movies %>%
   filter(budget > 0, revenue > 0) 
 
 CMTO <- Cleaned_moviestwo
 
-# Check this level of cleaned movies
+# Observe Total cleaned Movies that can be usable data
 
 CMTO %>%
   filter(revenue <= 0) %>%
@@ -38,7 +38,7 @@ CMTO %>%
   filter(budget <= 0) %>%
   nrow()
 
-# Check for unreleased/Released
+# Check for unreleased/Released to exclude potential movies
 CMTO %>%
   filter(status != "Released") %>%
   nrow()
@@ -51,13 +51,13 @@ what_movies <- CMTO %>%
   filter(status != "Released") %>%
   head()
 
-# Attempt a bigger clean
+# Further extensive clean
 
 CMTOF <- CMTO %>%
   filter(status == "Released", Runtime > 0, Vote_count > 100, Vote_average >0) %>%
   head(CMTOF)
 
-# everything came up as no Zeroes, move onto checking for blanks
+# All Zeroes excluded, begin excluding ""
 CMTOF %>%
   +     summarise(across(where(is.numeric), ~sum(.x == 0, na.rm = TRUE)))
 
@@ -67,13 +67,14 @@ CMTOF %>%
 CMTFOR <- CMFTO %>%
   +     filter(revenue >= 50000, budget >= 10000 )
 
-#save it
+#Save cleaned datset
 CMTFOR <- CMFTO %>%
       filter(revenue >= 50000, budget >= 10000 )
 
 # Check release_date column for type and convert to date if necessary
 is.character(Clean_movies$release_date)
 #TRUE
+
 #Properly Convert to Date then check with lubridate and inherits command
 #discover it must be in YMD as that's how it was inputted
 
@@ -84,13 +85,13 @@ movies_clean$release_date <- ymd(movies_clean$release_date)
  clean_movies2$status <- NULL
  summary(clean_movies2)
  
- # Convert Revenue and budget to Exponential
+ # Convert Revenue and budget to logarithmic for future modeling
  clean_movies3 <- clean_movies2 %>%
    mutate(log_revenue = log(revenue)) %>%
    mutate(log_budget = log(budget))
  
  
- # 8/29/2025 - More data cleaning!
+ # 8/29/2025 - Clean specific outlier movies, largely disney classics that amassed large revenues over the course of 6+ Reruns in the theater
  
  Movie %>%
    filter(title == "Bambi") %>%
@@ -199,7 +200,8 @@ movies_clean$release_date <- ymd(movies_clean$release_date)
    select(title, budget, revenue, ADJ_revenue, ADJ_budget, release_year)
  
  
- #Run through everything to ensure that it worked
+ #Run through now updated movies and reapply Datafeaturing to ensure correct modeling -- Note this section was done after the completion
+ # of Data_Featuring.R this is a carbon copy of that script to re-adjust the movies fixed above
  
  ADJ_Movies  <- Movie %>%
      mutate(ADJ_revenue = revenue*inflation_mult,
@@ -259,7 +261,7 @@ movies_clean$release_date <- ymd(movies_clean$release_date)
  head(n= 50, ADJ_Moviesprofit)  
  
  
- #Check to see if movie lossess make sense
+ #Check to see if movies in the negative are coherent
  any_50_losses <- ADJ_Moviesprofit %>%
    
    # 1. Keep only rows where the adjusted profit is negative
@@ -317,3 +319,5 @@ movies_clean$release_date <- ymd(movies_clean$release_date)
  
  MoviesReals <- MoviesReals %>%
    mutate(ADj_log_revenue = log(ADJ_revenue))
+ 
+ ## -- End Data Cleaning

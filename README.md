@@ -26,7 +26,7 @@ This Portfolio project demonstrates the following skills
     Training and test data splitting, RMSE and metric evaluation and
     analysis
 
--   Software Engineering: Clean Documented and Reproducible code,
+-   Feature Engineering: Clean Documented and Reproducible code,
     created UI user friendly movie input for anaylsis
 
 **How it Works**
